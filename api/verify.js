@@ -7,7 +7,8 @@ export default async (req, res) => {
     return res.status(400).send("Missing parameters");
   }
 
-  const zapierWebhookUrl = "https://hooks.zapier.com/hooks/catch/22708104/27ik5ii/";
+  const zapierWebhookUrl = "https://hooks.zapier.com/hooks/catch/23035039/2jzza35/";
+  
 
   try {
     // Send data to Zapier webhook
