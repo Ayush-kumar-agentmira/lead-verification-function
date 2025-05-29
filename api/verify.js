@@ -7,28 +7,24 @@ export default async (req, res) => {
     return res.status(400).send("Missing parameters");
   }
 
-  const zapierWebhookUrl = "https://hooks.zapier.com/hooks/catch/23035039/2jzza35/";
-  
+  // Show a simple verification page with a confirmation button
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Verify ${type}</title>
+      </head>
+      <body>
+        <h2>Confirm your ${type === "email" ? "Email" : "Phone"} Verification</h2>
+        <form method="POST" action="/api/confirm">
+          <input type="hidden" name="id" value="${id}" />
+          <input type="hidden" name="type" value="${type}" />
+          <button type="submit">Verify Now</button>
+        </form>
+      </body>
+    </html>
+  `;
 
-  try {
-    // Send data to Zapier webhook
-    await fetch(zapierWebhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id,
-        type,
-        clickedAt: new Date().toISOString(),
-      }),
-    });
-
-    // Redirect the user to a thank-you page
-    res.writeHead(302, {
-      Location: "https://ayush-kumar-agentmira.github.io/verification-page/",
-    });
-    res.end();
-  } catch (error) {
-    console.error("Error sending to Zapier:", error);
-    res.status(500).send("Verification failed");
-  }
+  res.setHeader("Content-Type", "text/html");
+  res.status(200).send(html);
 };
