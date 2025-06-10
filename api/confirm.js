@@ -20,14 +20,17 @@ export default async (req, res) => {
   // --- Field Mapping Based on Type ---
   let verificationField = "";
   let verificationValue = "";
+  let verificationMethodValue = "";
   const contactValidationValue = "Verified";
 
   if (type === "email") {
     verificationField = "Email Verification Status";
     verificationValue = "Email Verified";
+    verificationMethodValue = "Email";
   } else if (type === "phone") {
     verificationField = "Text Verification Status";
     verificationValue = "Text Verified";
+    verificationMethodValue = "Mobile";
   } else {
     return res.status(400).send("Invalid verification type");
   }
@@ -68,6 +71,11 @@ export default async (req, res) => {
       attributeName: verificationField,
       attributeType: "single-select",
       value: verificationValue,
+    },
+    {
+      attributeName: "Verification Method",
+      attributeType: "single-select",
+      value: verificationMethodValue,
     },
   ]);
 
