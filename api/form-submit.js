@@ -48,8 +48,8 @@ export default async function handler(req, res) {
 
       // Optional top-level fields
       const phone = formData.x_Phone;
-      const firstName = formData['First Name'] || formData.x_FirstName;
-      const lastName = formData['Last Name'] || formData.x_LastName;
+      const firstName = formData['First Name'] || formData.x_First;
+      const lastName = formData['Last Name'] || formData.x_Last;
 
       const payload = {
         ...(phone && { phones: [phone] }),
