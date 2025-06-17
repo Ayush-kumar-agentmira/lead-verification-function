@@ -13,72 +13,72 @@ export default async function handler(req, res) {
       const formData = parse(body);
       console.log("📥 Form submitted:", formData);
 
-      const leadId = formData.leadId;
-
+      const leadId = formData.leadId || formData.x_leadId;
       if (!leadId) {
         console.warn("⚠️ Missing leadId in submission");
         return res.status(400).send("❌ Missing leadId in form data");
       }
 
-      // Prepare update payload
-      const standardFields = {};
+      // Prepare payload fields
       const customAttributes = [];
 
-      // Standard fields
-      if (formData['First Name']) standardFields.firstName = formData['First Name'];
-      if (formData['Last Name']) standardFields.lastName = formData['Last Name'];
-      if (formData.Email) standardFields.emails = [formData.Email];
-      if (formData['Phone Number']) standardFields.phones = [formData['Phone Number']];
-
-      // Custom attributes
-      if (formData['Minimum Price Budget']) {
+      if (formData.x_Minimum) {
         customAttributes.push({
           attributeName: 'HB-Budget Min',
           attributeType: 'currency',
-          value: formData['Minimum Price Budget'],
+          value: formData.x_Minimum,
         });
       }
 
-      if (formData['Maximum Price Budget']) {
+      if (formData.x_Maximum) {
         customAttributes.push({
           attributeName: 'HB-Budget Max',
           attributeType: 'currency',
-          value: formData['Maximum Price Budget'],
+          value: formData.x_Maximum,
         });
       }
 
-      if (formData['Preferred Location']) {
+      if (formData.x_Preferred) {
         customAttributes.push({
           attributeName: 'HB-PrefCity',
           attributeType: 'text',
-          value: formData['Preferred Location'],
+          value: formData.x_Preferred,
         });
       }
 
+      // Optional top-level fields
+      const phone = formData.x_Phone;
+      const firstName = formData['First Name'] || formData.x_FirstName;
+      const lastName = formData['Last Name'] || formData.x_LastName;
+
+      const payload = {
+        ...(phone && { phones: [phone] }),
+        ...(firstName && { firstName }),
+        ...(lastName && { lastName }),
+        ...(customAttributes.length > 0 && { customAttributeList: customAttributes }),
+      };
+
       try {
         const response = await fetch(`${process.env.LOFTY_BASE_URL}/${leadId}`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
             Authorization: `token ${process.env.LOFTY_API_KEY}`,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            ...standardFields,
-            customAttributeList: customAttributes,
-          }),
+          body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error("❌ Lofty update failed:", errorText);
-          return res.status(500).send("❌ Failed to update lead in Lofty");
+          const errData = await response.text();
+          console.error("🔴 Lofty update failed:", errData);
+          return res.status(500).send("❌ Failed to update Lofty");
         }
 
-        console.log(`🟢 Lofty updated successfully for lead ${leadId}`);
+        console.log(`🟢 Lofty updated for lead ${leadId}`);
         res.status(200).send(`✅ Data received and updated for lead ${leadId}`);
       } catch (err) {
-        console.error("🔴 Error updating Lofty:", err.message);
-        res.status(500).send("❌ Error updating lead");
+        console.error("❌ Error during Lofty update:", err.message);
+        res.status(500).send("❌ Internal server error");
       }
     });
   } else {
