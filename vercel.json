@@ -2,10 +2,13 @@
   "version": 2,
   "builds": [
     { "src": "api/verify.js", "use": "@vercel/node" },
-    { "src": "api/confirm.js", "use": "@vercel/node" }
+    { "src": "api/confirm.js", "use": "@vercel/node" },
+    { "src": "api/form-submit.js", "use": "@vercel/node" }
+
   ],
   "routes": [
     { "src": "/api/verify", "dest": "/api/verify.js" },
-    { "src": "/api/confirm", "dest": "/api/confirm.js" }
+    { "src": "/api/confirm", "dest": "/api/confirm.js" },
+    { "src": "/api/form-submit", "dest": "/api/form-submit.js" }
   ]
 }
